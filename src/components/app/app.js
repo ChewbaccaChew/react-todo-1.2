@@ -108,9 +108,10 @@ export class App extends Component {
 
   editItem = (id) => {
     // без таймаута не работает
-    setTimeout(() => {});
-    window.addEventListener('click', this.handleClick);
-    window.addEventListener('keydown', this.handleKeydown);
+    setTimeout(() => {
+      window.addEventListener('click', this.handleClick);
+      window.addEventListener('keydown', this.handleKeydown);
+    });
 
     const idx = this.state.data.findIndex((item) => item.id === id);
     const changedObj = { ...this.state.data[idx] };
