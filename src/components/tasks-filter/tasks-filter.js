@@ -12,7 +12,11 @@ export function TasksFilter({ useFilteredTask, currentFilter }) {
 
     return (
       <li key={uniqId}>
-        <button type="button" className={currentFilter === item ? 'selected' : ''} onClick={useFilteredTask}>
+        <button
+          type="button"
+          className={currentFilter === item ? 'selected' : ''}
+          onClick={useFilteredTask}
+        >
           {item.charAt(0).toUpperCase() + item.slice(1)}
         </button>
       </li>

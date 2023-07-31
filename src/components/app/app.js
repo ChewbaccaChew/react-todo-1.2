@@ -15,9 +15,11 @@ export class App extends Component {
     filter: 'all',
     label: '',
     newLabel: '',
+    min: '',
+    sec: '',
   };
 
-  createItemData = (description) => {
+  createItemData = (description, min, sec) => {
     this.uniqId += 1;
 
     return {
@@ -25,7 +27,37 @@ export class App extends Component {
       status: 'active',
       id: this.uniqId,
       createDate: new Date(),
+      min,
+      sec,
+      timerId: null,
+      isPlaying: false,
     };
+  };
+
+  deleteItem = (id) => {
+    this.setState(({ data }) => {
+      const idx = data.findIndex((item) => item.id === id);
+
+      return {
+        data: [...data.slice(0, idx), ...data.slice(idx + 1)],
+      };
+    });
+  };
+
+  addItem = (label, min, sec) => {
+    if (label.trim()) {
+      const newItem = this.createItemData(label, min, sec);
+
+      this.setState(({ data }) => ({
+        data: [...data, newItem],
+      }));
+    }
+  };
+
+  addItemFromForm = (evt) => {
+    evt.preventDefault();
+    this.addItem(this.state.label, this.state.min, this.state.sec);
+    this.setState({ label: '', min: '', sec: '' });
   };
 
   toggleStatus = (id) => {
@@ -39,26 +71,6 @@ export class App extends Component {
         data: [...data.slice(0, idx), changedObj, ...data.slice(idx + 1)],
       };
     });
-  };
-
-  deleteItem = (id) => {
-    this.setState(({ data }) => {
-      const idx = data.findIndex((item) => item.id === id);
-
-      return {
-        data: [...data.slice(0, idx), ...data.slice(idx + 1)],
-      };
-    });
-  };
-
-  addItem = (label) => {
-    if (label.trim()) {
-      const newItem = this.createItemData(label);
-
-      this.setState(({ data }) => ({
-        data: [...data, newItem],
-      }));
-    }
   };
 
   useFilteredTask = (evt) => {
@@ -86,12 +98,6 @@ export class App extends Component {
   handleChange = (evt) => {
     const { name, value } = evt.target;
     this.setState({ [name]: value });
-  };
-
-  addItemFromForm = (evt) => {
-    evt.preventDefault();
-    this.addItem(this.state.label);
-    this.setState({ label: '' });
   };
 
   handleClick = (evt) => {
@@ -177,14 +183,82 @@ export class App extends Component {
     });
   };
 
+  stopTimer = (id) => {
+    const { timerId } = this.state.data.find((el) => el.id === id);
+
+    this.setState(({ data }) => {
+      const idx = data.findIndex((el) => el.id === id);
+      const tasks = [...data];
+      tasks[idx].isPlaying = false;
+
+      return {
+        data: tasks,
+      };
+    });
+    clearInterval(timerId);
+  };
+
+  startTimer = (id) => {
+    const { isPlaying } = this.state.data.find((el) => el.id === id);
+
+    if (!isPlaying) {
+      const timerId = setInterval(() => {
+        this.setState((prevState) => {
+          const updateTodo = prevState.data.map((todoItem) => {
+            if (todoItem.id === id) {
+              let secLeft = todoItem.sec - 1;
+              let minLeft = todoItem.min;
+              if (minLeft > 0 && secLeft === 0) {
+                minLeft -= 1;
+                secLeft = 59;
+              }
+              if (secLeft === 0 || secLeft < 0) {
+                secLeft = 0;
+                this.stopTimer(id);
+              }
+
+              return {
+                ...todoItem,
+                sec: secLeft,
+                min: minLeft,
+              };
+            }
+
+            return todoItem;
+          });
+
+          return {
+            data: updateTodo,
+          };
+        });
+      }, 1000);
+      this.setState(({ data }) => {
+        const idx = data.findIndex((el) => el.id === id);
+        const tasks = [...data];
+        tasks[idx].timerId = timerId;
+        tasks[idx].isPlaying = true;
+
+        return {
+          data: tasks,
+        };
+      });
+    }
+  };
+
   render() {
-    const { filter } = this.state;
-    const todoCount = this.state.data.filter((item) => item.status === 'active').length;
+    const { data, filter, label, newLabel, min, sec } = this.state;
+    const todoCount = data.filter((item) => item.status === 'active').length;
     const filteredTasks = this.getFilteredTasks();
 
     return (
       <section className="todoapp">
-        <NewTaskForm addItemFromForm={this.addItemFromForm} handleChange={this.handleChange} label={this.state.label} />
+        <NewTaskForm
+          addItemFromForm={this.addItemFromForm}
+          handleChange={this.handleChange}
+          label={label}
+          min={min}
+          sec={sec}
+        />
         <section className="main">
           <TaskList
             tasks={filteredTasks}
@@ -192,8 +266,12 @@ export class App extends Component {
             deleteItem={this.deleteItem}
             editItem={this.editItem}
             handleChange={this.handleChange}
-            newLabel={this.state.newLabel}
+            newLabel={newLabel}
             changeItem={this.changeItem}
+            min={min}
+            sec={sec}
+            startTimer={this.startTimer}
+            stopTimer={this.stopTimer}
           />
           <Footer
             useFilteredTask={this.useFilteredTask}

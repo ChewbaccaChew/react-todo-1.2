@@ -6,7 +6,17 @@ import { TaskItem } from '../task-item';
 import './task-list.css';
 
 export function TaskList(props) {
-  const { tasks, toggleStatus, deleteItem, editItem, handleChange, newLabel, changeItem } = props;
+  const {
+    tasks,
+    toggleStatus,
+    deleteItem,
+    editItem,
+    handleChange,
+    newLabel,
+    changeItem,
+    startTimer,
+    stopTimer,
+  } = props;
 
   const elements = tasks.map((item) => {
     const { id, ...itemsProps } = item;
@@ -21,6 +31,8 @@ export function TaskList(props) {
           handleChange={handleChange}
           newLabel={newLabel}
           changeItem={(evt) => changeItem(evt, id)}
+          startTimer={() => startTimer(id)}
+          stopTimer={() => stopTimer(id)}
         />
       </li>
     );

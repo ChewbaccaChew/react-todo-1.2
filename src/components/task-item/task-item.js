@@ -2,33 +2,67 @@
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 
+import { TaskTimer } from '../task-timer';
+
 import './task-item.css';
 
-export function TaskItem({
-  description,
-  status,
-  toggleStatus,
-  deleteItem,
-  createDate,
-  editItem,
-  handleChange,
-  newLabel,
-  changeItem,
-}) {
+export function TaskItem(props) {
+  const {
+    description,
+    status,
+    toggleStatus,
+    deleteItem,
+    createDate,
+    editItem,
+    handleChange,
+    newLabel,
+    changeItem,
+    min,
+    sec,
+    startTimer,
+    stopTimer,
+  } = props;
+
   return (
     <>
       <div className="view">
-        <input className="toggle" type="checkbox" onClick={toggleStatus} defaultChecked={status !== 'active'} />
+        <input
+          className="toggle"
+          type="checkbox"
+          onClick={toggleStatus}
+          defaultChecked={status !== 'active'}
+        />
         <label>
-          <span className="description">{description}</span>
-          <span className="created">created {formatDistanceToNow(createDate, { includeSeconds: true })} ago</span>
+          <span className="title">{description}</span>
+          <span className="description">
+            <TaskTimer startTimer={startTimer} stopTimer={stopTimer} min={min} sec={sec} />
+          </span>
+          <span className="created">
+            created {formatDistanceToNow(createDate, { includeSeconds: true })} ago
+          </span>
         </label>
-        <button type="button" className="icon icon-edit" onClick={editItem} aria-label="edit button" />
-        <button type="button" className="icon icon-destroy" onClick={deleteItem} aria-label="destroy button" />
+        <button
+          type="button"
+          className="icon icon-edit"
+          onClick={editItem}
+          aria-label="edit button"
+        />
+        <button
+          type="button"
+          className="icon icon-destroy"
+          onClick={deleteItem}
+          aria-label="destroy button"
+        />
       </div>
       {status === 'editing' ? (
         <form onSubmit={changeItem}>
-          <input className="edit" name="newLabel" type="text" value={newLabel} onChange={handleChange} />
+          <input
+            className="edit"
+            name="newLabel"
+            type="text"
+            value={newLabel}
+            onChange={handleChange}
+          />
         </form>
       ) : null}
     </>
