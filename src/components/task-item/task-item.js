@@ -21,6 +21,7 @@ export function TaskItem(props) {
     sec,
     startTimer,
     stopTimer,
+    resetTodo,
   } = props;
 
   return (
@@ -62,6 +63,9 @@ export function TaskItem(props) {
             type="text"
             value={newLabel}
             onChange={handleChange}
+            onKeyDown={resetTodo}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
           />
         </form>
       ) : null}

@@ -16,6 +16,7 @@ export function TaskList(props) {
     changeItem,
     startTimer,
     stopTimer,
+    resetTodo,
   } = props;
 
   const elements = tasks.map((item) => {
@@ -33,6 +34,7 @@ export function TaskList(props) {
           changeItem={(evt) => changeItem(evt, id)}
           startTimer={() => startTimer(id)}
           stopTimer={() => stopTimer(id)}
+          resetTodo={(evt) => resetTodo(evt)}
         />
       </li>
     );
